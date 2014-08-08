@@ -1,0 +1,23 @@
+{
+  "name": "ivitest",
+  "version": "0.0.0",
+  "description": "test module to validate REST API",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": "",
+  "keywords": [
+    "REST",
+    "API",
+    "validate",
+    "test",
+    "unit",
+    "test"
+  ],
+  "devDependencies": {
+    "vows": "0.7.0"
+  },
+  "author": "Yuda Ferry Mahendra",
+  "license": "BSD"
+}
