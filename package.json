@@ -1,13 +1,14 @@
 {
-  "name": "ivitest",
-  "version": "0.0.0",
-  "description": "test module to validate REST API",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "name"        : "ivitest",
+  "version"     : "0.0.3",
+  "description" : "test module to validate REST API",
+  "main"        : "index.js",
+  "scripts"     : {
+    "test"      : "echo \"Error: no test specified\" && exit 1",
+    "start"     : "./index.js"
   },
-  "repository": "",
-  "keywords": [
+  "repository"  : "",
+  "keywords"    : [
     "REST",
     "API",
     "validate",
@@ -15,11 +16,13 @@
     "unit",
     "test"
   ],
+  "github"      : "https://github.com/minehp/iviTest",
   "devDependencies": {
-    "vows"    : "0.7.0",
-    "async"   : "0.9.0",
-    "request" : "2.40.0"
+    "vows"        : "0.7.0",
+    "async"       : "0.9.0",
+    "request"     : "2.40.0",
+    "commander"   : "2.3.0"
   },
-  "author": "Yuda Ferry Mahendra",
-  "license": "BSD"
+  "author"      : "Yuda Ferry Mahendra",
+  "license"     : ""
 }
