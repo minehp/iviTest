@@ -16,7 +16,9 @@
     "test"
   ],
   "devDependencies": {
-    "vows": "0.7.0"
+    "vows"    : "0.7.0",
+    "async"   : "0.9.0",
+    "request" : "2.40.0"
   },
   "author": "Yuda Ferry Mahendra",
   "license": "BSD"
