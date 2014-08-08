@@ -9,6 +9,7 @@ target
 
 version 1.0.0 :
 	- use vows as test library (done)
+	
 	- use request as http request client (done)
 	- can test to google (in progress)
 	- try to test with custom server
