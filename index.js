@@ -143,7 +143,7 @@ try {
 					try {
 						if(params.response.statusCode) {
 							init.assert(res.statusCode);
-							init.assert.equal(res.statusCode,params.response.statusCode,"statusCode not :"params.response.statusCode);
+							init.assert.equal(res.statusCode,params.response.statusCode,"statusCode not :"+params.response.statusCode);
 						}
 
 						cb();
