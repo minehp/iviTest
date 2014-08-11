@@ -14,6 +14,10 @@ try {
 
 	// function to load module
 	var loadAll = function(path,dest) {
+		if(dest) {
+			init[dest] = {};
+		}
+
 		init
 		.fs
 		.readdirSync(path)
@@ -22,7 +26,6 @@ try {
 				if(!dest) {
 					init[value] = require(path+sp+value);
 				}else {
-					init[dest] = {};
 					init[dest][value] = require(path+sp+value);
 				}
 			}catch(e) { }
@@ -125,6 +128,7 @@ try {
 
 	var exportsThis = function(params) {
 		try {
+			var startProcess = +(new Date());
 			if(params) {
 				init.assert((typeof params)=="object","invalid parameter ( must be a json )");
 				checkArgument(params);
@@ -145,34 +149,45 @@ try {
 				function(cb) {
 					var currentFile 	= allKeys[count];
 					if(currentFile) {
-
 						var listBatch = {}
 							listBatch[currentFile] = {
 								topic : function() {
+									log("\nrun testfile : "+currentFile);
 									waterfallReq(init.testList[currentFile],this.callback)
 								},
 								"result" : function(err,res) {
 									init.assert(!err,err);
+									count++;
+									cb();
 								}
 							}
 						init.vows
 						.describe("run file : "+currentFile)
 						.addBatch(listBatch)
-						.run(function() {
-							count++;
-							cb();
-						});
+						.run();
 					}else {
 						count++;
 						cb();
 					}
 				},
 				function(err) {
+					var endProcess = +(new Date());
 					if(err) {
 						log(err);
 					}else {
 						log("done")
 					}
+
+					var range = endProcess - startProcess;
+					if(range>1000) {
+						var second 	= math.round(range/1000);
+						var mili 	= range-(second*1000);
+						range 		= second+" s "+mili+" ms";
+					}else {
+						range 		= range+" ms";
+					}
+					log("\n");
+					log("Total run time :"+range);
 				}
 			)
 		}catch(e) {
