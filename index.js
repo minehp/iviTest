@@ -90,9 +90,9 @@ try {
 		},
 		function(err) {
 			if(err) {
-				console.log(err);
+				log(err);
 			}else {
-				console.log("done")
+				log("done")
 			}
 		}
 	)
@@ -117,7 +117,6 @@ try {
 	}
 
 	var eachWaterfall = function(withArg,params) {
-		console.log(params)
 		if(withArg) {
 			return function(arg,cb) {
 
