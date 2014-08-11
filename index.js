@@ -40,62 +40,25 @@ try {
 		.toString()
 	);
 
-	// read parameter
-	init.commander
-	.version(init.package.version)
-	.option("-t, --testpath [testpath]","folder path place for test file",base+sp+"test")
-	.parse(process.argv);
-
-	// check if test folder already exists or not, if not test folder will auto create
-	var check = init.fs.existsSync(init.commander.testpath);
-	if(!check) {
-		init.fs.mkdirSync(init.commander.testpath)
-	}
-
-	// load all test file
-	loadAll(init.commander.testpath,"testList");
 
 	// ============================ (VIC) Very Important Code ====================================
 	// ===========================================================================================
 
-	var count 		= 0;
-	var allKeys 	= Object.keys(init.testList);
-	init.async
-	.until(
-		function() { return count==allKeys.length; },
-		function(cb) {
-			var currentFile 	= allKeys[count];
-			if(currentFile) {
+	var readArg = function() {
+		// read parameter
+		init.commander
+		.version(init.package.version)
+		.option("-t, --testpath [testpath]","folder path place for test file",base+sp+"test")
+		.parse(process.argv);
+	}
 
-				var listBatch = {}
-					listBatch[currentFile] = {
-						topic : function() {
-							waterfallReq(init.testList[currentFile],this.callback)
-						},
-						"result" : function(err,res) {
-							init.assert(!err,err);
-						}
-					}
-				init.vows
-				.describe("run file : "+currentFile)
-				.addBatch(listBatch)
-				.run(function() {
-					count++;
-					cb();
-				});
-			}else {
-				count++;
-				cb();
-			}
-		},
-		function(err) {
-			if(err) {
-				log(err);
-			}else {
-				log("done")
-			}
+	var checkArgument = function(params) {
+		if(params.testpath) {
+			var checkDir = init.fs.existsSync(params.testpath);
+			init.assert(checkDir,"folder "+params.testpath+" doesn't exists");
+			init.commander.testpath = params.testpath;
 		}
-	)
+	}
 
 	var waterfallReq = function(params,callback){
 		var firstArg = [];
@@ -159,7 +122,68 @@ try {
 			}
 		}
 	}
+
+	var exportsThis = function(params) {
+		try {
+			if(params) {
+				init.assert((typeof params)=="object","invalid parameter ( must be a json )");
+				checkArgument(params);
+			}else {
+				readArg();
+				checkArgument(init.commander);
+			}
+
+			// load all test file
+			loadAll(init.commander.testpath,"testList");
+			init.assert(init.testList,"test list empty");
+
+			var count 		= 0;
+			var allKeys 	= Object.keys(init.testList);
+			init.async
+			.until(
+				function() { return count==allKeys.length; },
+				function(cb) {
+					var currentFile 	= allKeys[count];
+					if(currentFile) {
+
+						var listBatch = {}
+							listBatch[currentFile] = {
+								topic : function() {
+									waterfallReq(init.testList[currentFile],this.callback)
+								},
+								"result" : function(err,res) {
+									init.assert(!err,err);
+								}
+							}
+						init.vows
+						.describe("run file : "+currentFile)
+						.addBatch(listBatch)
+						.run(function() {
+							count++;
+							cb();
+						});
+					}else {
+						count++;
+						cb();
+					}
+				},
+				function(err) {
+					if(err) {
+						log(err);
+					}else {
+						log("done")
+					}
+				}
+			)
+		}catch(e) {
+			log(e.message);
+			process.exit();
+		}
+	}
+
+	module.exports = exportsThis;
 }catch(e) {
 	console.log(e);
+	process.exit();
 }
 
