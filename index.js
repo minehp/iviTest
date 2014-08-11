@@ -117,11 +117,12 @@ try {
 					}
 				}
 
+				if(!params.arg) params.arg={};
 				if(params.callback) {
-					params.callback.apply(init,[err,res,body]);
+					var returnData = params.callback.apply(init,[err,res,body]);
 				}
 
-				cb();
+				cb(null,params.arg);
 			}catch(e) {
 				cb(e.message);
 			}
@@ -132,6 +133,7 @@ try {
 
 		if(withArg) {
 			return function(arg,cb) {
+				params.arg = arg;
 				processReq(params,cb);
 			}
 		}else {
