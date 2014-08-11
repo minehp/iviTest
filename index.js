@@ -141,9 +141,15 @@ try {
 
 				init.request(option,function(err,res,body) {
 					try {
-						if(params.response.statusCode) {
-							init.assert(res.statusCode);
-							init.assert.equal(res.statusCode,params.response.statusCode,"statusCode not :"+params.response.statusCode);
+						if(params.response) {
+							if(params.response.statusCode) {
+								init.assert(res.statusCode);
+								init.assert.equal(res.statusCode,params.response.statusCode,"statusCode not :"+params.response.statusCode);
+							}
+						}
+
+						if(params.callback) {
+							params.callback.apply(init,[err,res,body]);
 						}
 
 						cb();

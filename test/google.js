@@ -8,6 +8,10 @@ var google = {
 			// headers 	: {},
 			statusCode 	: 200,
 			// body 		: {}
+		},
+		callback: function(err,response,body) {
+			console.log(response.statusCode)
+			this.assert(response.statusCode==200,"error bu");
 		}
 	}
 }

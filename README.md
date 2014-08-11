@@ -1,4 +1,4 @@
-iviTest
+iviTest ( in progress )
 =======
 
 simple REST unit test
@@ -11,7 +11,7 @@ version 1.0.0 :
 
 	- use vows as test library (done)
 	- use request as http request client (done)
-	- can test to google (in progress)
+	- can test to google (done)
 	- try to test with custom server
 	- return function to test file
 	- test with multipart form data headers
