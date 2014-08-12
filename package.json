@@ -1,6 +1,6 @@
 {
   "name"        : "ivitest",
-  "version"     : "0.0.7",
+  "version"     : "0.5.0",
   "description" : "test module to validate REST API",
   "main"        : "index.js",
   "scripts"     : {
@@ -21,7 +21,8 @@
     "vows"        : "0.7.0",
     "async"       : "0.9.0",
     "request"     : "2.40.0",
-    "commander"   : "2.3.0"
+    "commander"   : "2.3.0",
+    "deepmerge"   : "0.2.7"
   },
   "author"      : "Yuda Ferry Mahendra <juncyboy@gmail.com>",
   "license"     : ""

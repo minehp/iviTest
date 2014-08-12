@@ -76,6 +76,7 @@ try {
 	var waterfallReq = function(params,callback){
 		var firstArg = [];
 		for(var i in params) {
+			params[i].head = i;
 			firstArg.push(
 				eachWaterfall(
 					(firstArg.length>0?true:false),
@@ -93,40 +94,68 @@ try {
 	}
 
 	var processReq = function(params,cb) {
-		var option = {
-			url 		: params.request.url,
-			headers 	: params.request.headers || {},
-			method 		: params.request.method=="post"?"POST":(params.request.method=="get"?"GET":params.request.method)
-		}
+		try {
+			var request = JSON.parse(JSON.stringify(params.request));
 
-		if(option.method=="POST") {
-			if(params.request.body && !params.request.headers) {
-				option.headers["Content-Type"] = "text/plain";
-			}else if(params.request.body && params.request.headers) {
-				if(!params.request.headers["Content-Type"])
+			if(params.arg) {
+				if(params.arg[params.head]) {
+					request = init.deepmerge(request,params.arg[params.head]);
+				}
+			}
+
+			var option = request;
+
+			if(option.method=="POST") {
+				if(!request.headers)
+					request.headers = {};
+
+				if(request.body && !request.headers) {
 					option.headers["Content-Type"] = "text/plain";
+				}else if(request.body && request.headers) {
+					if(!request.headers["Content-Type"])
+						option.headers["Content-Type"] = "text/plain";
+				}
 			}
-		}
 
-		init.request(option,function(err,res,body) {
-			try {
-				if(params.response) {
-					if(params.response.statusCode) {
-						init.assert(res.statusCode);
-						init.assert.equal(res.statusCode,params.response.statusCode,"statusCode not :"+params.response.statusCode);
+			if(option.body) {
+				if((typeof option.body)=="object") {
+					option.body = JSON.stringify(option.body);
+				}
+			}
+
+			init.request(option,function(err,res,body) {
+				try {
+					if(params.response) {
+						if(params.response.statusCode) {
+							init.assert(res.statusCode);
+							init.assert.equal(res.statusCode,params.response.statusCode,"statusCode not :"+params.response.statusCode);
+						}
 					}
-				}
 
-				if(!params.arg) params.arg={};
-				if(params.callback) {
-					var returnData = params.callback.apply(init,[err,res,body]);
-				}
+					if(!params.arg) params.arg={};
+					if(params.callback) {
+						var returnData = params.callback.apply(init,[err,res,body]);
+						if(returnData) {
+							init.assert((typeof returnData)=="object","request :"+params.head+" callback return not object");
+							for(var i in returnData) {
+								init.assert(returnData[i],"request :"+params.head+" callback invalid json");
+								if(params.arg[i]) {
+									params.arg[i] = init.deepmerge(params.arg[i],returnData[i]);
+								}else {
+									params.arg[i] = returnData[i];
+								}
+							}
+						}
+					}
 
-				cb(null,params.arg);
-			}catch(e) {
-				cb(e.message);
-			}
-		})
+					cb(null,params.arg);
+				}catch(e) {
+					cb(e.message);
+				}
+			})
+		}catch(e) {
+			cb(e.message);
+		}
 	}
 
 	var eachWaterfall = function(withArg,params) {
