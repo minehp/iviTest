@@ -80,6 +80,10 @@ to see help : `node run.js -h`
 	- return function to test file ( done )
 	- create as execute apps ( in /usr/bin )
 		+ just execute current file
-	- add configuration file
+    - recursively check json response
 	- try to test with custom server
 	- create documentation
+
+####version 2.0.0 :
+    - global parameter to prevent write request url or header repeatedly
+    - add configuration file

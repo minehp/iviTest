@@ -7,7 +7,6 @@
     "test"      : "echo \"Error: no test specified\" && exit 1",
     "start"     : "./index.js"
   },
-  "repository"  : "",
   "keywords"    : [
     "REST",
     "API",
@@ -17,6 +16,7 @@
     "test"
   ],
   "github"      : "https://github.com/minehp/iviTest",
+  "repository"      : "https://github.com/minehp/iviTest",
   "dependencies": {
     "vows"        : "0.7.0",
     "async"       : "0.9.0",
