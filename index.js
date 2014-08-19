@@ -7,9 +7,11 @@ try {
 
 	// initial config
 	var init = {
-		modPath : base+sp+"node_modules",
-		fs 		: require("fs"),
-		assert 	: require("assert"),
+		modPath 		: base+sp+"node_modules",
+		fs 				: require("fs"),
+		assert 			: require("assert"),
+		url 			: require("url"),
+		querystring 	: require("querystring")
 	}
 
 	// function to load module
@@ -73,34 +75,64 @@ try {
 		}
 	}
 
-	var waterfallReq = function(params,callback){
-		var firstArg = [];
-		for(var i in params) {
-			params[i].head = i;
-			firstArg.push(
-				eachWaterfall(
-					(firstArg.length>0?true:false),
-					params[i]
-				)
-			)
-		}
-
-		init.async.waterfall(
-			firstArg,
-			function(err,res) {
-				callback(err,res);
+	var testResponse = function(fromServer,fromTest,topic,part) {
+		try {
+			if((typeof fromTest)=="object"){
+				for(var i in fromTest) {
+					init.assert(fromServer[i],"request : "+topic+" has no index "+i);
+					if((typeof fromTest[i])=="object") {
+						testResponse(fromServer[i],fromTest[i],topic,part)
+					}else {
+						init.assert.equal(fromServer[i],fromTest[i],"request : "+topic+" ("+part+") not return "+fromTest[i]);
+					}
+				}
+			}else {
+				init.assert.equal(fromServer,fromTest,"request : "+topic+" has return not equal "+part);
 			}
-		);
+		}catch(e) {
+			init.assert(false,e.message)
+		}
 	}
 
 	var processReq = function(params,cb) {
 		try {
-			var request = JSON.parse(JSON.stringify(params.request));
-
+			var request = {};
+			if(params.request) {
+				request = JSON.parse(JSON.stringify(params.request));
+			}
+				request = init.deepmerge(params.globPar.request,request);
 			if(params.arg) {
 				if(params.arg[params.head]) {
 					request = init.deepmerge(request,params.arg[params.head]);
 				}
+			}
+
+			if(request.host) {
+				request.url = "";
+				if(request.protocol) {
+					request.protocol += "http://";
+					delete request.protocol;
+				}
+
+				request.url+=request.host;
+				delete request.host;
+				if(request.port) {
+					request.url+=":"+request.port;
+					delete request.port;
+				}
+				if(request.pathname) {
+					request.url+=request.pathname;
+					delete request.pathname;
+				}
+
+				if(request.query) {
+					if((typeof request.query)=="object"){
+						request.query = init.querystring.stringify(request.query);
+					}
+					request.url+=request.query;
+					delete request.query;
+				}
+
 			}
 
 			var option = request;
@@ -125,10 +157,24 @@ try {
 
 			init.request(option,function(err,res,body) {
 				try {
-					if(params.response) {
-						if(params.response.statusCode) {
+					init.assert(!err,err);
+					var response = params.response?params.response:{};
+					if(params.globPar.response) {
+						response = init.deepmerge(params.globPar.response,response);
+					}
+
+					if(Object.keys(response).length>0) {
+						if(response.statusCode) {
 							init.assert(res.statusCode);
-							init.assert.equal(res.statusCode,params.response.statusCode,"statusCode not :"+params.response.statusCode);
+							init.assert.equal(
+								res.statusCode,
+								response.statusCode,
+								"request : "+params.head+" not return statusCode :"+response.statusCode
+							);
+						}
+
+						if(response.body) {
+							testResponse(body,response.body,params.head,"body");
 						}
 					}
 
@@ -159,7 +205,6 @@ try {
 	}
 
 	var eachWaterfall = function(withArg,params) {
-
 		if(withArg) {
 			return function(arg,cb) {
 				params.arg = arg;
@@ -170,6 +215,41 @@ try {
 				processReq(params,cb);
 			}
 		}
+	}
+
+	var waterfallReq = function(params,callback){
+		var firstArg 	= [];
+		var globPar 	=  {
+			request 	: {},
+			response 	: {}
+		};
+		if(params.request) {
+			globPar.request = params.request;
+			delete params.request;
+		}
+		if(params.response) {
+			globPar.response = params.response;
+			delete params.response;
+		}
+
+
+		for(var i in params) {
+			params[i].head = i;
+			params[i].globPar = globPar;
+			firstArg.push(
+				eachWaterfall(
+					(firstArg.length>0?true:false),
+					params[i]
+				)
+			)
+		}
+
+		init.async.waterfall(
+			firstArg,
+			function(err,res) {
+				callback(err,res);
+			}
+		);
 	}
 
 	var createList = function(testList) {
