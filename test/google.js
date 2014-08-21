@@ -10,7 +10,7 @@ var google = {
 			// body 		: {}
 		},
 		callback: function(err,response,body) {
-			this.assert(response.statusCode==200,"error with status code");
+			response.should.have.property("statusCode").with.a("number").and.equal(200);
 		}
 	}
 }

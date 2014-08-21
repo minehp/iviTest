@@ -4,15 +4,17 @@ try {
 	global.sp		= process.platform=="win32"?"\\":"/";
 	global.base 	= __dirname;
 	global.log 		= console.log;
+		global.assert	= require("assert");
 
 	// initial config
 	var init = {
 		modPath 		: base+sp+"node_modules",
 		fs 				: require("fs"),
-		assert 			: require("assert"),
 		url 			: require("url"),
 		querystring 	: require("querystring")
 	}
+
+
 
 	// function to load module
 	var loadAll = function(path,dest) {
@@ -36,6 +38,15 @@ try {
 
 	// load all module in node_modules
 	loadAll(init.modPath);
+
+	if(init.underscore) {
+		init._ = init.underscore;
+		delete init.underscore;
+	}
+
+	global.should = init.chai.should();
+	global.expect = init.chai.expect;
+
 
 	// read package.json
 	init.package = JSON.parse(
@@ -62,7 +73,7 @@ try {
 	var checkArgument = function(params) {
 		if(params.testpath) {
 			var checkDir = init.fs.existsSync(params.testpath);
-			init.assert(checkDir,"folder "+params.testpath+" doesn't exists");
+			assert(checkDir,"folder "+params.testpath+" doesn't exists");
 			init.commander.testpath = params.testpath;
 		}
 
@@ -78,19 +89,29 @@ try {
 	var testResponse = function(fromServer,fromTest,topic,part) {
 		try {
 			if((typeof fromTest)=="object"){
+				try {
+					fromServer = JSON.parse(fromServer);
+				}catch(e) {}
+
 				for(var i in fromTest) {
-					init.assert(fromServer[i],"request : "+topic+" has no index "+i);
-					if((typeof fromTest[i])=="object") {
-						testResponse(fromServer[i],fromTest[i],topic,part)
+					if(i=="exists") {
+						for(var j in fromTest[i]) {
+							fromServer.should.have.property(fromTest[i][j]);
+						}
 					}else {
-						init.assert.equal(fromServer[i],fromTest[i],"request : "+topic+" ("+part+") not return "+fromTest[i]);
+						fromServer.should.have.property(i);
+						if((typeof fromTest[i])=="object") {
+							testResponse(fromServer[i],fromTest[i],topic,part)
+						}else {
+							fromServer[i].should.equal(fromTest[i]);
+						}
 					}
 				}
 			}else {
-				init.assert.equal(fromServer,fromTest,"request : "+topic+" has return not equal "+part);
+				fromServer.should.equal(fromTest);
 			}
 		}catch(e) {
-			init.assert(false,e.message)
+			assert(false,e.message)
 		}
 	}
 
@@ -157,34 +178,42 @@ try {
 
 			init.request(option,function(err,res,body) {
 				try {
-					init.assert(!err,err);
-					var response = params.response?params.response:{};
-					if(params.globPar.response) {
-						response = init.deepmerge(params.globPar.response,response);
-					}
-
-					if(Object.keys(response).length>0) {
-						if(response.statusCode) {
-							init.assert(res.statusCode);
-							init.assert.equal(
-								res.statusCode,
-								response.statusCode,
-								"request : "+params.head+" not return statusCode :"+response.statusCode
-							);
+					var error = false;
+					try {
+						should.not.exist(err);
+						var response = params.response?params.response:{};
+						if(params.globPar.response) {
+							response = init.deepmerge(params.globPar.response,response);
 						}
 
-						if(response.body) {
-							testResponse(body,response.body,params.head,"body");
+						if(Object.keys(response).length>0) {
+							if(response.statusCode) {
+								should.exist(res.statusCode);
+								res.statusCode.should.equal(response.statusCode);
+							}
+
+							if(response.body) {
+								testResponse(body,response.body,params.head,"body");
+							}
+
+							if(response.headers) {
+								testResponse(res.headers,response.headers,params.head,"headers");
+							}
 						}
+					}catch(e) {
+						error = e.message;
 					}
 
 					if(!params.arg) params.arg={};
 					if(params.callback) {
+						try {
+							body = JSON.parse(body);
+						}catch(e) {}
 						var returnData = params.callback.apply(init,[err,res,body]);
 						if(returnData) {
-							init.assert((typeof returnData)=="object","request :"+params.head+" callback return not object");
+							returnData.should.be.a("object");
 							for(var i in returnData) {
-								init.assert(returnData[i],"request :"+params.head+" callback invalid json");
+								should.exist(returnData[i])
 								if(params.arg[i]) {
 									params.arg[i] = init.deepmerge(params.arg[i],returnData[i]);
 								}else {
@@ -194,6 +223,7 @@ try {
 						}
 					}
 
+					error.should.equal(false);
 					cb(null,params.arg);
 				}catch(e) {
 					cb(e.message);
@@ -253,8 +283,8 @@ try {
 	}
 
 	var createList = function(testList) {
-		init.assert(testList,"no file to test");
-		init.assert((typeof testList)=="object","testList not an object");
+		assert(testList,"no file to test");
+		assert((typeof testList)=="object","testList not an object");
 
 		log("\n");
 		testList.forEach(function(values,keys) {
@@ -269,7 +299,7 @@ try {
 		try {
 			var startProcess = +(new Date());
 			if(params) {
-				init.assert((typeof params)=="object","invalid parameter ( must be a json )");
+				assert((typeof params)=="object","invalid parameter ( must be a json )");
 				checkArgument(params);
 			}else {
 				readArg();
@@ -278,7 +308,7 @@ try {
 
 			// load all test file
 			loadAll(init.commander.testpath,"testList");
-			init.assert(init.testList,"test list empty");
+			assert(init.testList,"test list empty");
 
 			var count 		= 0;
 			var allKeys 	= Object.keys(init.testList);
@@ -291,7 +321,7 @@ try {
 				}else {
 					count 	= getChoose;
 				}
-				init.assert(count<allKeys.length, "choose number more than total file, or file doesn't exists");
+				assert(count<allKeys.length, "choose number more than total file, or file doesn't exists");
 				choose = count+1;
 			}
 
@@ -317,7 +347,7 @@ try {
 										waterfallReq(init.testList[currentFile],this.callback)
 									},
 									"result" : function(err,res) {
-										init.assert(!err,err);
+										assert(!err,err);
 										count++;
 										cb();
 									}

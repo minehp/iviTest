@@ -1,7 +1,8 @@
 # iviTest
 
 
-simple REST API unit test, based from [vowsjs](http://vowsjs.org/) and [request](https://github.com/mikeal/request).
+simple REST API unit test, based from [vowsjs](http://vowsjs.org/) and [request](https://github.com/mikeal/request).  
+use [chaijs](http://chaijs.com/api/bdd/) to find BDD documentation.
 
 ## Simple to use
 
@@ -62,6 +63,37 @@ or if you want to use first response as second request
     module.exports = google;
 ```
 
+of if you want use BDD test
+
+```javascript
+    var showPersistent = {
+        request : { // global variable
+            method  : "GET",
+            host    : "http://localhost:54321"
+        },
+        response : {
+            statusCode : 200,
+            body    : {
+                status  : "success"
+            }
+        },
+        "request1" : {
+            request : { // local variable
+                pathname    : "/products/list",
+                method      : "POST",
+                body        : {}
+            },
+            callback: function(err,response,body) {
+                body.should.have.property("data"); // BDD test
+                body.data.should.be.a("array"); // BDD test
+                body.data.should.have.property("products_id").with.a("number");
+            }
+        }
+    }
+
+    module.exports = showPersistent;
+```
+
 then execute them : `node run.js`  
 if you want to run test in other folder : `node run.js -t /foldername`   
 if you want to know all file to run : `node run.js -l`  
@@ -80,10 +112,10 @@ to see help : `node run.js -h`
 	- return function to test file ( done )
 	- create as execute apps ( in /usr/bin )
 		+ just execute current file
-    - recursively check json response
-	- try to test with custom server
+    - recursively check json response (done)
+	- try to test with custom server (done)
 	- create documentation
 
 ####version 2.0.0 :
-    - global parameter to prevent write request url or header repeatedly
+    - global parameter to prevent write request url or header repeatedly (done)
     - add configuration file
