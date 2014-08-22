@@ -56,6 +56,17 @@ try {
 		.toString()
 	);
 
+	init.parseCookies = function (par) {
+	    var list = {},
+	        rc = par.headers["set-cookie"][0];
+
+	    rc && rc.split(';').forEach(function( cookie ) {
+	        var parts = cookie.split('=');
+	        list[parts.shift().trim()] = unescape(parts.join('='));
+	    });
+	    return list;
+	}
+
 
 	// ============================ (VIC) Very Important Code ====================================
 	// ===========================================================================================
@@ -117,12 +128,21 @@ try {
 
 	var processReq = function(params,cb) {
 		try {
-			var request = {};
+			var request = {
+				headers : {}
+			};
+
 			if(params.request) {
-				request = JSON.parse(JSON.stringify(params.request));
+				var curReq 	= JSON.parse(JSON.stringify(params.request));
+				request 	= init.deepmerge(request,curReq)
 			}
-				request = init.deepmerge(params.globPar.request,request);
+
+			request = init.deepmerge(params.globPar.request,request);
 			if(params.arg) {
+				if(params.arg.headers) {
+					request.headers = init.deepmerge(request.headers,params.arg.headers)
+				}
+
 				if(params.arg[params.head]) {
 					request = init.deepmerge(request,params.arg[params.head]);
 				}
@@ -213,16 +233,33 @@ try {
 						if(returnData) {
 							returnData.should.be.a("object");
 							for(var i in returnData) {
-								should.exist(returnData[i])
-								if(params.arg[i]) {
-									params.arg[i] = init.deepmerge(params.arg[i],returnData[i]);
-								}else {
-									params.arg[i] = returnData[i];
+								should.exist(returnData[i]);
+								if(i!="headers") {
+									if(params.arg[i]) {
+										params.arg[i] = init.deepmerge(params.arg[i],returnData[i]);
+									}else {
+										params.arg[i] = returnData[i];
+									}
 								}
+							}
+
+							if(returnData.headers) {
+								params.arg.headers = returnData.headers;
 							}
 						}
 					}
 
+					if(res.headers["set-cookie"]) {
+						if(params.arg.headers) {
+							if(!params.arg.headers.Cookie) {
+								params.arg.headers.Cookie = "connect.sid="+init.parseCookies(res)["connect.sid"];
+							}
+						}else {
+							params.arg.headers = {
+								Cookie : "connect.sid="+init.parseCookies(res)["connect.sid"]
+							}
+						}
+					}
 					error.should.equal(false);
 					cb(null,params.arg);
 				}catch(e) {
@@ -248,11 +285,13 @@ try {
 	}
 
 	var waterfallReq = function(params,callback){
+
 		var firstArg 	= [];
 		var globPar 	=  {
 			request 	: {},
 			response 	: {}
 		};
+
 		if(params.request) {
 			globPar.request = params.request;
 			delete params.request;
@@ -261,7 +300,6 @@ try {
 			globPar.response = params.response;
 			delete params.response;
 		}
-
 
 		for(var i in params) {
 			params[i].head = i;
@@ -344,6 +382,7 @@ try {
 								listBatch[currentFile] = {
 									topic : function() {
 										log("\nrun testfile : "+currentFile);
+
 										waterfallReq(init.testList[currentFile],this.callback)
 									},
 									"result" : function(err,res) {

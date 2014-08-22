@@ -102,6 +102,14 @@ if you want to execute just one file ( not all in one hit ) : `node run.js -c 1`
 
 to see help : `node run.js -h`
 
+
+## release note
+
+### 0.9.1
+    - fix headers send
+    - auto set cookie for request if exists
+
+
 ## target
 
 ####version 1.0.0 :
