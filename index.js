@@ -104,11 +104,28 @@ try {
 					fromServer = JSON.parse(fromServer);
 				}catch(e) {}
 
+				var varType = ["array","string","number","object","boolean"]
 				for(var i in fromTest) {
+					// console.log("typeof fromTest[i] =====================")
+					// console.log(typeof fromTest[i])
+					// console.log(fromTest[i])
 					if(i=="exists") {
 						for(var j in fromTest[i]) {
 							fromServer.should.have.property(fromTest[i][j]);
 						}
+					}else if(varType.indexOf(i)>-1) {
+						for(var j in fromTest[i]) {
+							fromServer[fromTest[i][j]].should.be.a(varType[varType.indexOf(i)])
+						}
+					}else if(i=="each") {
+						init._.map(fromServer,function(valueFServer){
+							init._.map(fromTest[i],function(valueFTest){
+								valueFServer.should.have.property(valueFTest);
+							})
+						})
+						// for(var j in fromTest[i]) {
+						// 	fromServer[fromTest[i][j]].should.be.a(varType[varType.indexOf(i)])
+						// }
 					}else {
 						fromServer.should.have.property(i);
 						if((typeof fromTest[i])=="object") {

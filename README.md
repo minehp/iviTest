@@ -8,7 +8,99 @@ use [chaijs](http://chaijs.com/api/bdd/) to find BDD documentation.
 
 just place your code in test folder inside **ivitest** main folder, or you can create custom folder anywhere.
 
-####try.js
+```javascript
+    {
+        request     : {}, // GLOBAL
+        response    : {}, // GLOBAL
+        "a context" : {
+            request     : {}, // LOCAL
+            response    : {}, // LOCAL
+            callback    : function(err,res,body) {} // LOCAL
+        }
+    }
+```
+
+### [Request](https://github.com/mikeal/request)
+
+```javascript
+    {
+        url     : "http://google.com",
+        method  : "GET", // POST, GET, PUT, & etc
+        headers : {
+            'Content-Type': 'text/plain'
+        }
+    }
+```
+
+### Response
+
+#### Check data type
+
+```javascript
+    // sample response
+    // {
+    //      data : [],
+    //      list : [],
+    //      body : {},
+    //      foo  : {},
+    //      "check the child" : {
+    //          name    : "",
+    //          address : "",
+    //          years   : 2014,
+    //          age     : 26,
+    //      }
+    // }
+    {
+        array   : ["data","list"],
+        object  : ["body","foo"],
+        "check the child"  : {
+            string  : ["name","address"],
+            number  : ["years","age"],
+        }
+    }
+```
+
+#### Check object inside array
+
+```javascript
+    //  sample response
+    //  [
+    //      {
+    //          "name"      : "yuda",
+    //          "adress"    : "surabaya",
+    //      }
+    //  ]
+    {
+        each   : ["name","address"] // each response has property name and address
+    }
+```
+
+## callback
+
+[assert](http://chaijs.com/api/assert/), [should or expect](http://chaijs.com/api/bdd/) can directly call from this function
+
+```javascript
+    // sample response
+    // {
+    //      data : [],
+    //      list : [],
+    //      foo  : {},
+    //      "check the child" : {
+    //          name    : "",
+    //          address : "",
+    //          years   : 2014,
+    //          age     : 26,
+    //      }
+    // }
+    callback: function(err,response,body) {
+        body.should.have.property("data").be.a("array");
+        expect(body).to.have.property("list").to.be.a("array");
+        assert((typeof body.foo)=="object")
+    }
+```
+
+## to google
+
 
 ```javascript
     var google = {
@@ -22,7 +114,6 @@ just place your code in test folder inside **ivitest** main folder, or you can c
     		}
     	}
     }
-
     module.exports = google;
 ```
 
@@ -108,13 +199,14 @@ to see help : `node run.js -h`
 ### 0.9.1
     - fix headers send
     - auto set cookie for request if exists
-
 ### 0.9.2
     - fix request priority
-
 ### 0.9.3
     - fix cookie save
     - fix race condition error
+### 0.9.4
+    - json response check
+    - check each array
 
 
 ## target
