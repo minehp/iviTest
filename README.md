@@ -109,6 +109,13 @@ to see help : `node run.js -h`
     - fix headers send
     - auto set cookie for request if exists
 
+### 0.9.2
+    - fix request priority
+
+### 0.9.3
+    - fix cookie save
+    - fix race condition error
+
 
 ## target
 

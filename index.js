@@ -132,12 +132,6 @@ try {
 				headers : {}
 			};
 
-			if(params.request) {
-				var curReq 	= JSON.parse(JSON.stringify(params.request));
-				request 	= init.deepmerge(request,curReq)
-			}
-
-			request = init.deepmerge(params.globPar.request,request);
 			if(params.arg) {
 				if(params.arg.headers) {
 					request.headers = init.deepmerge(request.headers,params.arg.headers)
@@ -147,6 +141,12 @@ try {
 					request = init.deepmerge(request,params.arg[params.head]);
 				}
 			}
+			if(params.request) {
+				var curReq 	= JSON.parse(JSON.stringify(params.request));
+				request 	= init.deepmerge(request,curReq)
+			}
+
+			request = init.deepmerge(params.globPar.request,request);
 
 			if(request.host) {
 				request.url = "";
@@ -252,14 +252,18 @@ try {
 					if(res.headers["set-cookie"]) {
 						if(params.arg.headers) {
 							if(!params.arg.headers.Cookie) {
-								params.arg.headers.Cookie = "connect.sid="+init.parseCookies(res)["connect.sid"];
+								if(!params.arg.headers) params.arg.headers = {};
+								// params.arg.headers.Cookie = "connect.sid="+init.parseCookies(res)["connect.sid"];
+								params.arg.headers.Cookie = res.headers["set-cookie"];
 							}
 						}else {
 							params.arg.headers = {
-								Cookie : "connect.sid="+init.parseCookies(res)["connect.sid"]
+								// Cookie : "connect.sid="+init.parseCookies(res)["connect.sid"]
+								Cookie : res.headers["set-cookie"]
 							}
 						}
 					}
+
 					error.should.equal(false);
 					cb(null,params.arg);
 				}catch(e) {
@@ -271,22 +275,8 @@ try {
 		}
 	}
 
-	var eachWaterfall = function(withArg,params) {
-		if(withArg) {
-			return function(arg,cb) {
-				params.arg = arg;
-				processReq(params,cb);
-			}
-		}else {
-			return function(cb) {
-				processReq(params,cb);
-			}
-		}
-	}
-
 	var waterfallReq = function(params,callback){
 
-		var firstArg 	= [];
 		var globPar 	=  {
 			request 	: {},
 			response 	: {}
@@ -301,23 +291,62 @@ try {
 			delete params.response;
 		}
 
-		for(var i in params) {
-			params[i].head = i;
-			params[i].globPar = globPar;
-			firstArg.push(
-				eachWaterfall(
-					(firstArg.length>0?true:false),
-					params[i]
-				)
-			)
-		}
+		var listOfKeys = Object.keys(params);
+		var index = 0;
+		var headers = false;
+		init.async.until(
+			function() {
+				return index==listOfKeys.length;
+			},
+			function(cb,arg) {
+				try {
+					var arg 		= params[listOfKeys[index]];
+						arg.head 	= listOfKeys[index];
+						arg.globPar = globPar;
 
-		init.async.waterfall(
-			firstArg,
-			function(err,res) {
-				callback(err,res);
+
+					processReq(arg,function(err,res){
+						index++;
+						try {
+							assert(!err,err);
+							if(res) {
+								res.should.be.a("object","return value not an object");
+								if(res.headers) {
+									headers = res.headers;
+									delete res.headers
+								}
+
+								if(Object.keys(res)>0) {
+									init._.map(res,function(value,key) {
+										if(params[key]) {
+											params[key].request = init.deepmerge(params[key].request,value)
+										}
+									})
+								}
+								if(headers) {
+									init._.map(params,function(value,key) {
+										if(!params[key].request.headers) params[key].request.headers = {};
+										params[key].request.headers = init.deepmerge(params[key].request.headers,headers);
+									})
+								}
+								cb();
+							}else {
+								cb();
+							}
+						}catch(e) {
+							cb(e.message);
+						}
+					});
+				}catch(e) {
+					index++;
+					cb(e.message)
+				}
+			},
+			function(err) {
+				callback(err);
 			}
-		);
+		)
+
 	}
 
 	var createList = function(testList) {

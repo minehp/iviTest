@@ -1,10 +1,9 @@
 {
   "name"        : "ivitest",
-  "version"     : "0.9.1",
+  "version"     : "0.9.3",
   "description" : "test module to validate REST API",
   "main"        : "index.js",
   "scripts"     : {
-    "test"      : "echo \"Error: no test specified\" && exit 1",
     "start"     : "./index.js"
   },
   "keywords"    : [
