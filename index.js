@@ -106,9 +106,6 @@ try {
 
 				var varType = ["array","string","number","object","boolean"]
 				for(var i in fromTest) {
-					// console.log("typeof fromTest[i] =====================")
-					// console.log(typeof fromTest[i])
-					// console.log(fromTest[i])
 					if(i=="exists") {
 						for(var j in fromTest[i]) {
 							fromServer.should.have.property(fromTest[i][j]);
@@ -123,9 +120,6 @@ try {
 								valueFServer.should.have.property(valueFTest);
 							})
 						})
-						// for(var j in fromTest[i]) {
-						// 	fromServer[fromTest[i][j]].should.be.a(varType[varType.indexOf(i)])
-						// }
 					}else {
 						fromServer.should.have.property(i);
 						if((typeof fromTest[i])=="object") {
@@ -326,6 +320,7 @@ try {
 						index++;
 						try {
 							assert(!err,err);
+							
 							if(res) {
 								res.should.be.a("object","return value not an object");
 								if(res.headers) {
@@ -333,7 +328,7 @@ try {
 									delete res.headers
 								}
 
-								if(Object.keys(res)>0) {
+								if(Object.keys(res).length>0) {
 									init._.map(res,function(value,key) {
 										if(params[key]) {
 											params[key].request = init.deepmerge(params[key].request,value)

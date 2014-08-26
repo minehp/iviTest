@@ -193,36 +193,3 @@ if you want to execute just one file ( not all in one hit ) : `node run.js -c 1`
 
 to see help : `node run.js -h`
 
-
-## release note
-
-### 0.9.1
-    - fix headers send
-    - auto set cookie for request if exists
-### 0.9.2
-    - fix request priority
-### 0.9.3
-    - fix cookie save
-    - fix race condition error
-### 0.9.4
-    - json response check
-    - check each array
-
-
-## target
-
-####version 1.0.0 :
-	- use vows (http://vowsjs.org/) as test library (done)
-	- use request (https://github.com/mikeal/request) as http request client (done)
-	- can test to google (done)
-	- can choose what file to test (done)
-	- return function to test file ( done )
-	- create as execute apps ( in /usr/bin )
-		+ just execute current file
-    - recursively check json response (done)
-	- try to test with custom server (done)
-	- create documentation
-
-####version 2.0.0 :
-    - global parameter to prevent write request url or header repeatedly (done)
-    - add configuration file
