@@ -11,7 +11,7 @@
 ### 0.9.4
     - json response check
     - check each array
-### 0.9.4
+### 0.9.5
     - fix response return value
 
 ## target
