@@ -1,5 +1,7 @@
 # iviTest
+[![NPM version](https://badge.fury.io/js/ivitest.svg)](http://badge.fury.io/js/ivitest)
 
+[![NPM](https://nodei.co/npm/ivitest.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/ivitest/)
 
 simple REST API unit test, based from [vowsjs](http://vowsjs.org/) and [request](https://github.com/mikeal/request).  
 use [chaijs](http://chaijs.com/api/bdd/) to find BDD documentation.
