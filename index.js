@@ -142,7 +142,7 @@ try {
 			var request = {
 				headers : {}
 			};
-			
+
             if(params.arg) {
 				if(params.arg.headers) {
 					request.headers = init.deepmerge(request.headers,params.arg.headers)
@@ -208,6 +208,7 @@ try {
 			}
 
 			init.request(option,function(err,res,body) {
+
 				try {
 					var error = false;
 					try {
@@ -323,7 +324,7 @@ try {
 						index++;
 						try {
 							assert(!err,err);
-							
+
 							if(res) {
 								res.should.be.a("object","return value not an object");
 								if(res.headers) {
@@ -358,10 +359,13 @@ try {
 				}
 			},
 			function(err) {
-				var errMsg = {
-					err 	: err,
-					test 	: test,
-					fault 	: listOfKeys[index+1]
+				var errMsg = undefined;
+				if(err) {
+					errMsg = {
+						err 	: err,
+						test 	: test,
+						fault 	: listOfKeys[index-1]
+					}
 				}
 
 				callback(errMsg,test);
@@ -446,13 +450,14 @@ try {
 											log("\033[36m"+err.test.context.join(" || ")+"\033[0m");
 											log("context error : \033[33m"+err.fault+"\033[0m");
 											log("error message : \033[33m"+err.err+"\033[0m");
+											log("====================================================");
+											assert(!err,err.err);
 										}else {
 											log("test count : "+res.count);
 											log("list of context : ");
 											log("\033[36m"+res.context.join(" || ")+"\033[0m");
+											log("====================================================");
 										}
-										log("====================================================");
-										assert(!err,err.err);
 										count++;
 										cb();
 									}
