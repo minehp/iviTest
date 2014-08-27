@@ -142,8 +142,8 @@ try {
 			var request = {
 				headers : {}
 			};
-
-			if(params.arg) {
+			
+            if(params.arg) {
 				if(params.arg.headers) {
 					request.headers = init.deepmerge(request.headers,params.arg.headers)
 				}
@@ -259,18 +259,17 @@ try {
 							}
 						}
 					}
-
 					if(res.headers["set-cookie"]) {
 						if(params.arg.headers) {
 							if(!params.arg.headers.Cookie) {
 								if(!params.arg.headers) params.arg.headers = {};
 								// params.arg.headers.Cookie = "connect.sid="+init.parseCookies(res)["connect.sid"];
-								params.arg.headers.Cookie = res.headers["set-cookie"];
+								params.arg.headers.Cookie = res.headers["set-cookie"][0];
 							}
 						}else {
 							params.arg.headers = {
 								// Cookie : "connect.sid="+init.parseCookies(res)["connect.sid"]
-								Cookie : res.headers["set-cookie"]
+								Cookie : res.headers["set-cookie"][0]
 							}
 						}
 					}
@@ -303,6 +302,10 @@ try {
 		}
 
 		var listOfKeys = Object.keys(params);
+		var test = {
+			count : 0,
+			context :[]
+		}
 		var index = 0;
 		var headers = false;
 		init.async.until(
@@ -341,10 +344,10 @@ try {
 										params[key].request.headers = init.deepmerge(params[key].request.headers,headers);
 									})
 								}
-								cb();
-							}else {
-								cb();
 							}
+							test.count++;
+							test.context.push(arg.head);
+							cb();
 						}catch(e) {
 							cb(e.message);
 						}
@@ -355,7 +358,13 @@ try {
 				}
 			},
 			function(err) {
-				callback(err);
+				var errMsg = {
+					err 	: err,
+					test 	: test,
+					fault 	: listOfKeys[index+1]
+				}
+
+				callback(errMsg,test);
 			}
 		)
 
@@ -422,12 +431,28 @@ try {
 							var listBatch = {}
 								listBatch[currentFile] = {
 									topic : function() {
-										log("\nrun testfile : "+currentFile);
+										log("\n====================================================");
+										log("file : "+currentFile+" executing....");
+										log("====================================================\n");
 
 										waterfallReq(init.testList[currentFile],this.callback)
 									},
 									"result" : function(err,res) {
-										assert(!err,err);
+										log("\n====================================================");
+										log("file : "+currentFile+" executed!!");
+										if(err) {
+											log("test count : "+err.test.count);
+											log("list of context : ");
+											log("\033[36m"+err.test.context.join(" || ")+"\033[0m");
+											log("context error : \033[33m"+err.fault+"\033[0m");
+											log("error message : \033[33m"+err.err+"\033[0m");
+										}else {
+											log("test count : "+res.count);
+											log("list of context : ");
+											log("\033[36m"+res.context.join(" || ")+"\033[0m");
+										}
+										log("====================================================");
+										assert(!err,err.err);
 										count++;
 										cb();
 									}

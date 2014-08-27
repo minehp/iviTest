@@ -17,6 +17,10 @@
     - add badge
 ### 0.9.7
     - fix badge
+### 1.0.0
+    - add informative done message
+    - fix cookie ( headers set )
+    - add documentation
 
 ## target
 
@@ -29,7 +33,7 @@
     - global parameter to prevent write request url or header repeatedly (done)
     - recursively check json response (done)
 	- try to test with custom server (done)
-	- create documentation
+	- create documentation(done)
 
 ####version 2.0.0 :
     - create as execute apps ( in /usr/bin )

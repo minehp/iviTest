@@ -1,5 +1,6 @@
 # iviTest
 [![NPM version](https://badge.fury.io/js/ivitest.png)](http://badge.fury.io/js/ivitest)
+[![Stories in Ready](https://badge.waffle.io/minehp/iviTest.png?label=ready&title=Ready)](https://waffle.io/minehp/iviTest)
 
 [![NPM](https://nodei.co/npm/ivitest.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/ivitest/)
 
