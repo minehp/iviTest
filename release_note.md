@@ -15,6 +15,8 @@
     - fix response return value
 ### 0.9.6
     - add badge
+### 0.9.7
+    - fix badge
 
 ## target
 

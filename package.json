@@ -1,6 +1,6 @@
 {
   "name"        : "ivitest",
-  "version"     : "0.9.6",
+  "version"     : "0.9.7",
   "description" : "test module to validate REST API",
   "main"        : "index.js",
   "scripts"     : {

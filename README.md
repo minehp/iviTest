@@ -1,5 +1,5 @@
 # iviTest
-[![NPM version](https://badge.fury.io/js/ivitest.svg)](http://badge.fury.io/js/ivitest)
+[![NPM version](https://badge.fury.io/js/ivitest.png)](http://badge.fury.io/js/ivitest)
 
 [![NPM](https://nodei.co/npm/ivitest.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/ivitest/)
 
