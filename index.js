@@ -133,7 +133,7 @@ try {
 				fromServer.should.equal(fromTest);
 			}
 		}catch(e) {
-			assert(false,e.message)
+				assert(false,e.message)
 		}
 	}
 
@@ -157,7 +157,8 @@ try {
 				request 	= init.deepmerge(request,curReq)
 			}
 
-			request = init.deepmerge(params.globPar.request,request);
+			if(params.globPar)
+				request = init.deepmerge(params.globPar.request,request);
 
 			if(request.host) {
 				request.url = "";
@@ -212,8 +213,10 @@ try {
 				try {
 					var error = false;
 					try {
+
 						should.not.exist(err);
 						var response = params.response?params.response:{};
+
 						if(params.globPar.response) {
 							response = init.deepmerge(params.globPar.response,response);
 						}
@@ -260,6 +263,9 @@ try {
 							}
 						}
 					}
+
+					assert.equal(error,false,error);
+
 					if(res.headers["set-cookie"]) {
 						if(params.arg.headers) {
 							if(!params.arg.headers.Cookie) {
@@ -275,9 +281,14 @@ try {
 						}
 					}
 
-					error.should.equal(false);
 					cb(null,params.arg);
 				}catch(e) {
+					log("\033[31m");
+					log("request =========================");
+					log(option);
+					log("\nbody ============================");
+					log(body);
+					log("\033[0m");
 					cb(e.message);
 				}
 			})
@@ -302,6 +313,11 @@ try {
 			delete params.response;
 		}
 
+		if(params.continue!=undefined) {
+			var lanjutBro = params.continue?true:false;
+			delete params.continue;
+		}
+
 		var listOfKeys = Object.keys(params);
 		var test = {
 			count : 0,
@@ -318,7 +334,6 @@ try {
 					var arg 		= params[listOfKeys[index]];
 						arg.head 	= listOfKeys[index];
 						arg.globPar = globPar;
-
 
 					processReq(arg,function(err,res){
 						index++;
