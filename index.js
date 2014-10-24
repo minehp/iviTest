@@ -32,7 +32,7 @@ try {
 				}else {
 					init[dest][value] = require(path+sp+value);
 				}
-			}catch(e) { }
+			}catch(e) { if(e.message.indexOf("Cannot find module")==-1) { console.log(e); } }
 		});
 	}
 
@@ -117,7 +117,8 @@ try {
 					}else if(i=="each") {
 						init._.map(fromServer,function(valueFServer){
 							init._.map(fromTest[i],function(valueFTest){
-								valueFServer.should.have.property(valueFTest);
+								expect(valueFServer[valueFTest]).to.exists;
+								expect(valueFServer[valueFTest]).to.not.equal(null);
 							})
 						})
 					}else {
@@ -286,6 +287,8 @@ try {
 					log("\033[31m");
 					log("request =========================");
 					log(option);
+					log("\nerror ============================");
+					log(err);
 					log("\nbody ============================");
 					log(body);
 					log("\033[0m");
@@ -334,6 +337,8 @@ try {
 					var arg 		= params[listOfKeys[index]];
 						arg.head 	= listOfKeys[index];
 						arg.globPar = globPar;
+
+					log("\033[35mrun test : "+arg.head+"\033[0m");
 
 					processReq(arg,function(err,res){
 						index++;
