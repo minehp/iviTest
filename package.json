@@ -1,6 +1,6 @@
 {
   "name": "ivitest",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "test module to validate REST API",
   "main": "index.js",
   "scripts": {
@@ -9,7 +9,7 @@
   "keywords": [
     "REST",
     "API",
-    "test",
+    "test"
   ],
   "github": "https://github.com/minehp/iviTest",
   "repository": "https://github.com/minehp/iviTest",
