@@ -1,0 +1,21 @@
+﻿#!/usr/bin/env node
+var path = require("path"),
+    commander = require("commander"),
+    ivitest = require("../index.js")
+    testPath = path.resolve(process.cwd(), "ivitest");
+
+commander
+.version(process.env.npm_package_version)
+.option("-t, --testpath [testpath]", "folder path place for test file", testPath)
+.option("-l, --list", "list file tested")
+.option("-c, --choose [number or string]", "Spesified test file")
+.parse(process.argv);
+
+var params = {
+    path : commander.testpath
+}
+
+if (commander.list) { params.list = true; }
+else if (commander.choose != undefined) { params.test = commander.choose; }
+
+ivitest(params);

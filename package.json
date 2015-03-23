@@ -1,12 +1,12 @@
 {
-  "name"        : "ivitest",
-  "version"     : "1.0.0",
-  "description" : "test module to validate REST API",
-  "main"        : "index.js",
-  "scripts"     : {
-    "start"     : "./index.js"
+  "name": "ivitest",
+  "version": "1.0.0",
+  "description": "test module to validate REST API",
+  "main": "index.js",
+  "scripts": {
+    "test": "node ./bin/ivitest"
   },
-  "keywords"    : [
+  "keywords": [
     "REST",
     "API",
     "validate",
@@ -14,17 +14,19 @@
     "unit",
     "test"
   ],
-  "github"      : "https://github.com/minehp/iviTest",
-  "repository"      : "https://github.com/minehp/iviTest",
+  "github": "https://github.com/minehp/iviTest",
+  "repository": "https://github.com/minehp/iviTest",
   "dependencies": {
-    "vows"        : "0.7.0",
-    "async"       : "0.9.0",
-    "request"     : "2.40.0",
-    "commander"   : "2.3.0",
-    "deepmerge"   : "0.2.7",
-    "chai"        : "1.9.1",
-    "underscore"  : "1.6.0"
+    "async": "0.9.x",
+    "chai": "1.9.x",
+    "commander": "2.3.x",
+    "deepmerge": "0.2.x",
+    "request": "^2.53.x",
+    "underscore": "1.6.x",
+    "vows": "^0.8.x"
   },
-  "author"      : "Yuda Ferry Mahendra <juncyboy@gmail.com>",
-  "license"     : ""
+  "author": "Yuda Ferry Mahendra <juncyboy@gmail.com>",
+  "bin": {
+    "ivitest": "./bin/ivitest"
+  }
 }
