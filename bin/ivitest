@@ -1,7 +1,7 @@
 ﻿#!/usr/bin/env node
 var path = require("path"),
     commander = require("commander"),
-    ivitest = require("../index.js")
+    ivitest = require("../index.js"),
     testPath = path.resolve(process.cwd(), "ivitest");
 
 commander
