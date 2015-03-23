@@ -38,4 +38,4 @@
 ####version 2.0.0 :
     - create as execute apps ( in /usr/bin )
         + just execute current file
-    - add configuration file
+    - before and after

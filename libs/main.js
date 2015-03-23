@@ -4,7 +4,12 @@ var main = function (data) {
 }
 
 main.prototype.runOnce = function (index) {
-    console.log(index)
+    if (this.data[index]) {
+        var TCD = new test(this.data[index]);
+        TCD.on("error", function (err) {})
+        TCD.on("success", function () {})
+        TCD.run();
+    }
 }
 
 main.prototype.runAll = function () {
@@ -28,7 +33,6 @@ main.prototype.runAll = function () {
             }
         }.bind(this),
         function (err) {
-            console.log("done");
         }
     );
 }

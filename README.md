@@ -4,8 +4,8 @@
 
 [![NPM](https://nodei.co/npm/ivitest.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/ivitest/)
 
-simple REST API unit test, based from [vowsjs](http://vowsjs.org/) and [request](https://github.com/mikeal/request).  
-use [chaijs](http://chaijs.com/api/bdd/) to find BDD documentation.
+Simple REST API unit test, based from [vowsjs](http://vowsjs.org/) and [request](https://github.com/mikeal/request).  
+Use [chaijs](http://chaijs.com/api/bdd/) to find BDD & TDD documentation.
 
 ## Simple to use
 
@@ -15,10 +15,12 @@ just place your code in test folder inside **ivitest** main folder, or you can c
     {
         request     : {}, // GLOBAL
         response    : {}, // GLOBAL
-        "a context" : {
-            request     : {}, // LOCAL
-            response    : {}, // LOCAL
-            callback    : function(err,res,body) {} // LOCAL
+        "a context" : {  // LOCAL
+            request     : {},
+            response    : {},
+            callback    : function(err,res,body) {},
+            before      : function(data,done) {},
+            after       : function(data,done) {}
         }
     }
 ```
@@ -102,97 +104,82 @@ just place your code in test folder inside **ivitest** main folder, or you can c
     }
 ```
 
-## to google
 
-
-```javascript
-    var google = {
-	    "request1" : {
-    		request 	: { // this parameter can found in https://github.com/mikeal/request
-    			method 	: "GET",
-    			url 	: "http://google.com",
-    		},
-    		response 	: {
-    			statusCode 	: 200, // code response must have status code 200
-    		}
-    	}
-    }
-    module.exports = google;
-```
-
-or if you want to use first response as second request
+if you want to use first response as second request
 
 ```javascript
     var google = {
-	    "request1" : {
-    		request 	: { // this parameter can found in https://github.com/mikeal/request
-    			method 	: "GET",
-    			url 	: "http://google.com",
-    		},
-    		response 	: {
-    			statusCode 	: 200, // code response must have status code 200
-    		},
-    		callback    : function(err,res,body) {
-    		    return {
-    		        body : {
-    		            status : res.statusCode
-    		        }
-    		    }
-    		}
-    	},
-    	"request2" : {
-    	    request 	: { // this parameter can found in https://github.com/mikeal/request
-    			method 	: "POST",
-    			url 	: "http://custom.com/getstatus",
-    			body    : {
-    			    detail : "status from google"
-    			}
-    		},
-    		response 	: {
-    			statusCode 	: 200, // code response must have status code 200
-    		}
-    	}
-    }
-
-    module.exports = google;
-```
-
-of if you want use BDD test
-
-```javascript
-    var showPersistent = {
-        request : { // global variable
-            method  : "GET",
-            host    : "http://localhost:54321"
-        },
-        response : {
-            statusCode : 200,
-            body    : {
-                status  : "success"
+        "request1" : {
+            request     : { 
+                method  : "GET",
+                url     : "http://google.com",
+            },
+            response    : {
+                statusCode  : 200
+            },
+            callback    : function(err,res,body) {
+                return {
+                    body : {
+                        status : res.statusCode
+                    }
+                }
             }
         },
-        "request1" : {
-            request : { // local variable
-                pathname    : "/products/list",
-                method      : "POST",
-                body        : {}
+        "request2" : {
+            request     : {
+                method  : "POST",
+                url     : "http://custom.com/getstatus",
+                body    : {
+                    detail : "status from google"
+                }
             },
-            callback: function(err,response,body) {
-                body.should.have.property("data"); // BDD test
-                body.data.should.be.a("array"); // BDD test
-                body.data.should.have.property("products_id").with.a("number");
+            response    : {
+                statusCode  : 200
             }
         }
     }
 
-    module.exports = showPersistent;
+    module.exports = google;
 ```
 
-then execute them : `node run.js`  
-if you want to run test in other folder : `node run.js -t /foldername`   
-if you want to know all file to run : `node run.js -l`  
-if you want to execute just one file ( not all in one hit ) : `node run.js -c 1`  
+### Before & After
+```javascript
+    var mongoose = require("mongoose");
+    mongoose.connect("mongodb://localhost/mydb");
+    var user = mongoose.model("users",{},"users);
+    var google = {
+        "request1" : {
+            request     : { 
+                method  : "GET",
+                url     : "http://google.com",
+            },
+            response    : {
+                statusCode  : 200
+            },
+            callback    : function(err,res,body) {
+            },
+            before : function(data,done) {
+                var su = new user({name:"yuda"});
+                su.save(function(err) {
+                    data.name = "yuda";
+                    done();
+                })
+            },
+            after : function(data,done) {
+                su.remove({name:data.name},function() {
+                    done();
+                })
+            }
+        }
+    }
+
+    module.exports = google;
+```
+
+then execute them : `ivitest`  
+if you want to run test in other folder : `ivitest -t /foldername`   
+if you want to know all file to run : `ivitest -l`  
+if you want to execute just one file ( not all in one hit ) : `ivitest -c 1`  
 ( number `1` can change with other number or string file name ) 
 
-to see help : `node run.js -h`
-
+to see help : `ivitest -h`

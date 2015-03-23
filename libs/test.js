@@ -20,34 +20,20 @@ test.prototype.run = function () { // create vows test
 }
 
 test.prototype.batch = function (fileName) { // defined batch
-    var testProcess = this;
+    var ini = this;
     var retVal = {};
         retVal[fileName] = {
             topic : function () {
-                console.log("\n====================================================");
-                console.log("file : " + fileName + " executing....");
-                console.log("====================================================\n");
-
-                testProcess.process(testProcess.data[fileName], this.callback);
+                console.log("\n\033[32m\t"+fileName + " execute...\033[0m");
+                ini.process(ini.data[fileName], this.callback);
             },
-            "result" : function (err, res) {
-                console.log("\n====================================================");
-                console.log("file : " + fileName + " executed!!");
+            "result" : function (err, count) {
+                console.log("\033[32m\t"+count + " context executed\033[0m");
                 if (err) {
-                    console.log("test count : " + err.testCase.count);
-                    console.log("list of context : ");
-                    console.log("\033[36m" + err.testCase.context.join(" || ") + "\033[0m");
-                    console.log("context error : \033[33m" + err.fault + "\033[0m");
-                    console.log("error message : \033[33m" + err.err + "\033[0m");
-                    console.log("====================================================");
-                    testProcess.emit("error",err.err);
+                    ini.emit("error",err.err);
                     assert(!err, err.err);
                 } else {
-                    console.log("test count : " + res.count);
-                    console.log("list of context : ");
-                    console.log("\033[36m" + res.context.join(" || ") + "\033[0m");
-                    console.log("====================================================");
-                    testProcess.emit("success");
+                    ini.emit("success");
                 }
             }
         }
@@ -55,6 +41,7 @@ test.prototype.batch = function (fileName) { // defined batch
 }
 
 test.prototype.process = function (params, callback) {
+    var ini = this;
     var globPar = {
         request 	: {},
         response 	: {}
@@ -70,10 +57,8 @@ test.prototype.process = function (params, callback) {
     }
     
     var listOfKeys = Object.keys(params);
-    var testCase = {
-        count : 0,
-        context : []
-    }
+    var count = 0;
+    var fault = "";
     var index = 0;
     var headers = false;
     async.until(
@@ -84,13 +69,42 @@ test.prototype.process = function (params, callback) {
             try {
                 var arg = params[listOfKeys[index]];
                     arg.head = listOfKeys[index];
-                    arg.globPar = globPar;
-                console.log("\033[35mrun testCase : " + arg.head + "\033[0m");
-                processReq(arg, function (err,nextArg) {
-                    console.log(err);
-                    index++;
-                    cb();
-                })
+                    arg.global = globPar;
+                if(arg.before) {
+                    arg.before(params,function(){
+                        processReq(arg, function (err,nextArg) {
+                            count++;
+                            if(err) {
+                                fault+= arg.head;
+                                cb(err);
+                            }else if(arg.after){
+                                arg.after(params,function(){
+                                    index++;
+                                    cb();  
+                                });
+                            }else {
+                                index++;
+                                cb();                                
+                            }
+                        })
+                    });
+                }else {
+                    processReq(arg, function (err,nextArg) {
+                        count++;
+                        if(err) {
+                            fault+= arg.head;
+                            cb(err);
+                        }else if(arg.after){
+                            arg.after(params,function(){
+                                index++;
+                                cb();  
+                            });
+                        }else {
+                            index++;
+                            cb();                                
+                        }
+                    })                    
+                }
             } catch (e) {
                 cb(e.message)
             }
@@ -100,11 +114,10 @@ test.prototype.process = function (params, callback) {
             if (err) {
                 errMsg = {
                     err : err,
-                    testCase : testCase,
-                    fault : listOfKeys[index]
+                    fault : fault
                 }
             }
-            callback(errMsg, testCase);
+            callback(errMsg, count);
         }
     )
 }
