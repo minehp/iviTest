@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/minehp/iviTest.png?label=ready&title=Ready)](https://waffle.io/minehp/iviTest)
 # iviTest
 [![NPM version](https://badge.fury.io/js/ivitest.png)](http://badge.fury.io/js/ivitest)
 [![Stories in Ready](https://badge.waffle.io/minehp/iviTest.png?label=ready&title=Ready)](https://waffle.io/minehp/iviTest)
